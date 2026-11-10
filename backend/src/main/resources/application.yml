@@ -1,0 +1,50 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /
+
+spring:
+  application:
+    name: ecoroute-backend
+
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:h2:file:./data/ecoroutedb;DB_CLOSE_DELAY=-1}
+    username: ${SPRING_DATASOURCE_USERNAME:sa}
+    password: ${SPRING_DATASOURCE_PASSWORD:}
+    driver-class-name: ${SPRING_DATASOURCE_DRIVER:org.h2.Driver}
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.H2Dialect
+
+app:
+  jwt:
+    secret: ${JWT_SECRET:9a8b7c6d5e4f3a2b1c0d9e8f7a6b5c4d3e2f1a0b9c8d7e6f5a4b3c2d1e0f9a8b}
+    expiration-ms: ${JWT_EXPIRATION_MS:86400000} # 24 hours
+
+external:
+  openroute:
+    api-key: ${OPENROUTE_API_KEY:}
+    url: https://api.openrouteservice.org
+  osrm:
+    url: https://router.project-osrm.org
+  weather:
+    api-key: ${WEATHER_API_KEY:}
+    url: https://api.open-meteo.com/v1/forecast
+  air-quality:
+    url: https://air-quality-api.open-meteo.com/v1/air-quality
+  nominatim:
+    url: https://nominatim.openstreetmap.org
+  overpass:
+    url: https://overpass-api.de/api/interpreter
+
+logging:
+  level:
+    root: INFO
+    com.ecoroute: DEBUG
+    org.hibernate.SQL: DEBUG

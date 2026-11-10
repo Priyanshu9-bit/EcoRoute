@@ -1,0 +1,650 @@
+{
+	"info": {
+		"_postman_id": "ecoroute-backend-50percent-id",
+		"name": "EcoRoute 50% Backend API Collection",
+		"description": "Postman API testing collection for EcoRoute Smart Environmental Route Recommendation System - 50% Backend Milestone",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "1. Authentication",
+			"item": [
+				{
+					"name": "Register User - Success",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Ashish\",\n  \"email\": \"ashish@gmail.com\",\n  \"password\": \"Ashish@123\",\n  \"confirmPassword\": \"Ashish@123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"register"
+							]
+						}
+					}
+				},
+				{
+					"name": "Register User - Duplicate Email (409)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Ashish Duplicate\",\n  \"email\": \"ashish@gmail.com\",\n  \"password\": \"Ashish@123\",\n  \"confirmPassword\": \"Ashish@123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"register"
+							]
+						}
+					}
+				},
+				{
+					"name": "Register User - Weak Password (400)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Test User\",\n  \"email\": \"testuser@gmail.com\",\n  \"password\": \"simple\",\n  \"confirmPassword\": \"simple\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"register"
+							]
+						}
+					}
+				},
+				{
+					"name": "Login - Success",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.token) {",
+									"    pm.collectionVariables.set('jwtToken', jsonData.token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"ashish@gmail.com\",\n  \"password\": \"Ashish@123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						}
+					}
+				},
+				{
+					"name": "Login - Wrong Password (401)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"ashish@gmail.com\",\n  \"password\": \"WrongPass@123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "2. Profile Management",
+			"item": [
+				{
+					"name": "Create Profile (First Time)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Ashish\",\n  \"age\": 24,\n  \"medicalInformation\": \"Asthma / Sensitivity to high AQI\",\n  \"vehicleType\": \"EV\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/profile",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"profile"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Profile",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/profile",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"profile"
+							]
+						}
+					}
+				},
+				{
+					"name": "Update Profile",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Ashish Kumar\",\n  \"age\": 25,\n  \"medicalInformation\": \"Mild pollen allergy\",\n  \"vehicleType\": \"CAR\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/profile",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"profile"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "3. Dashboard",
+			"item": [
+				{
+					"name": "Get Dashboard Data",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/dashboard",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"dashboard"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "4. Journey Management",
+			"item": [
+				{
+					"name": "Create Journey",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"source\": \"Bhubaneswar\",\n  \"destination\": \"Puri\",\n  \"travelType\": \"FAMILY\",\n  \"vehicleType\": \"CAR\",\n  \"routePreferences\": [\n    \"FASTEST\",\n    \"SAFEST\",\n    \"HEALTHIEST\"\n  ],\n  \"requiredFacilities\": [\n    \"EV_CHARGING\",\n    \"HOSPITAL\",\n    \"RESTAURANT\"\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/journeys",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"journeys"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get All Journeys",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/journeys",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"journeys"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Journey By ID",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/journeys/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"journeys",
+								"1"
+							]
+						}
+					}
+				},
+				{
+					"name": "Update Journey",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"source\": \"Bhubaneswar\",\n  \"destination\": \"Cuttack\",\n  \"travelType\": \"SOLO\",\n  \"vehicleType\": \"BIKE\",\n  \"routePreferences\": [\n    \"SHORTEST\",\n    \"HEALTHIEST\"\n  ],\n  \"requiredFacilities\": [\n    \"FUEL_STATION\",\n    \"GARAGE\"\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/journeys/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"journeys",
+								"1"
+							]
+						}
+					}
+				},
+				{
+					"name": "Delete Journey",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwtToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/journeys/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"journeys",
+								"1"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "5. Routing & Geocoding",
+			"item": [
+				{
+					"name": "Geocode Location Name",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/location/geocode?query=Bhubaneswar",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"location",
+								"geocode"
+							],
+							"query": [
+								{
+									"key": "query",
+									"value": "Bhubaneswar"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Calculate Route (OpenRouteService / OSRM)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"sourceLat\": 20.2961,\n  \"sourceLng\": 85.8245,\n  \"destLat\": 19.8135,\n  \"destLng\": 85.8312,\n  \"profile\": \"driving-car\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/routes/search",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"routes",
+								"search"
+							]
+						}
+					}
+				},
+				{
+					"name": "Analyze Route (Environmental Aggregation)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"sourceLat\": 20.2961,\n  \"sourceLng\": 85.8245,\n  \"destLat\": 19.8135,\n  \"destLng\": 85.8312,\n  \"requiredFacilities\": [\n    \"HOSPITAL\",\n    \"EV_CHARGING\",\n    \"FUEL_STATION\"\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/routes/analyze",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"routes",
+								"analyze"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "6. Environmental & Facilities",
+			"item": [
+				{
+					"name": "Get Weather Data",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/weather?lat=20.2961&lon=85.8245",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"weather"
+							],
+							"query": [
+								{
+									"key": "lat",
+									"value": "20.2961"
+								},
+								{
+									"key": "lon",
+									"value": "85.8245"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Air Quality Data",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/air-quality?lat=20.2961&lon=85.8245",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"air-quality"
+							],
+							"query": [
+								{
+									"key": "lat",
+									"value": "20.2961"
+								},
+								{
+									"key": "lon",
+									"value": "85.8245"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Nearby Facilities",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/facilities?lat=20.2961&lon=85.8245&type=EV_CHARGING&radius=5.0",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"facilities"
+							],
+							"query": [
+								{
+									"key": "lat",
+									"value": "20.2961"
+								},
+								{
+									"key": "lon",
+									"value": "85.8245"
+								},
+								{
+									"key": "type",
+									"value": "EV_CHARGING"
+								},
+								{
+									"key": "radius",
+									"value": "5.0"
+								}
+							]
+						}
+					}
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080",
+			"type": "string"
+		},
+		{
+			"key": "jwtToken",
+			"value": "",
+			"type": "string"
+		}
+	]
+}
