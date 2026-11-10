@@ -45,19 +45,10 @@ export default function RegisterPage() {
 
   const pwdInfo = checkPasswordStrength(formData.password);
 
-  const handleChange = async (e) => {
+  const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-
-    // Real-time email duplicate check
-    if (name === 'email' && value.includes('@')) {
-      const isAlreadyReg = await apiService.checkEmailRegistered(value);
-      if (isAlreadyReg) {
-        setErrors((prev) => ({ ...prev, email: 'Registration Failed. Email is already registered. Please login instead.' }));
-      } else {
-        setErrors((prev) => ({ ...prev, email: '' }));
-      }
-    } else if (errors[name]) {
+    if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: '' }));
     }
   };
@@ -75,29 +66,13 @@ export default function RegisterPage() {
       newErrors.email = 'Email address is required';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = 'Please enter a valid email address (e.g., username@example.com)';
-    } else {
-      const isDuplicate = await apiService.checkEmailRegistered(formData.email);
-      if (isDuplicate) {
-        newErrors.email = 'Registration Failed. Email is already registered. Please login instead.';
-      }
     }
 
-    // 3. Password Validation
+    // 3. Password Validation (At least 6 characters)
     if (!formData.password) {
       newErrors.password = 'Password is required';
-    } else {
-      const reqs = pwdInfo.requirements;
-      if (!reqs.length) {
-        newErrors.password = 'Password must be at least 6 characters long.';
-      } else if (!reqs.uppercase) {
-        newErrors.password = 'Password must contain at least one uppercase letter (A–Z).';
-      } else if (!reqs.lowercase) {
-        newErrors.password = 'Password must contain at least one lowercase letter (a–z).';
-      } else if (!reqs.number) {
-        newErrors.password = 'Password must contain at least one number (0–9).';
-      } else if (!reqs.special) {
-        newErrors.password = 'Password must contain at least one special character (@, #, $, %, etc.).';
-      }
+    } else if (formData.password.length < 6) {
+      newErrors.password = 'Password must be at least 6 characters long.';
     }
 
     // 4. Confirm Password Validation
@@ -123,9 +98,19 @@ export default function RegisterPage() {
 
     try {
       await register(formData.fullName, formData.email, formData.password);
-      localStorage.removeItem('ecoroute_token');
-      localStorage.removeItem('ecoroute_current_user');
-      navigate(ROUTES.LOGIN, { state: { registeredEmail: formData.email, verifiedMessage: 'Account created successfully. Please login to continue.' } });
+      
+      // Seamless immediate login
+      try {
+        await login(formData.email, formData.password);
+        navigate(ROUTES.PROFILE);
+      } catch {
+        navigate(ROUTES.LOGIN, { 
+          state: { 
+            registeredEmail: formData.email, 
+            verifiedMessage: 'Account created successfully. Please login to continue.' 
+          } 
+        });
+      }
     } catch (err) {
       if (err.message && err.message.toLowerCase().includes('already registered')) {
         setServerError('Registration Failed. Email is already registered. Please login instead.');

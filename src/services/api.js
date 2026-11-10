@@ -98,7 +98,7 @@ export const apiService = {
         throw new Error(errorMsg);
       }
 
-      // Backend unreachable (e.g., deployed on Vercel without cloud backend, or backend offline)
+      // Backend unreachable (e.g., deployed on Vercel without cloud backend, or offline mobile app)
       console.warn('Backend server unreachable. Enabling local demo account fallback.', error);
       const mockUser = {
         id: Date.now(),
@@ -110,13 +110,15 @@ export const apiService = {
         isOfflineDemo: true
       };
       const users = JSON.parse(localStorage.getItem('ecoroute_local_users') || '[]');
-      if (users.some(u => u.email?.toLowerCase() === email?.toLowerCase())) {
-        throw new Error('Registration Failed. Email is already registered. Please login instead.');
+      const existingIdx = users.findIndex(u => u.email?.toLowerCase() === email?.toLowerCase());
+      if (existingIdx >= 0) {
+        users[existingIdx] = { ...mockUser, password };
+      } else {
+        users.push({ ...mockUser, password });
       }
-      users.push({ ...mockUser, password });
       localStorage.setItem('ecoroute_local_users', JSON.stringify(users));
       localStorage.setItem('ecoroute_current_user', JSON.stringify(mockUser));
-      return { success: true, message: 'User registered successfully (Demo Mode)', data: mockUser };
+      return { success: true, message: 'User registered successfully', data: mockUser };
     }
   },
 
@@ -137,31 +139,28 @@ export const apiService = {
         throw new Error(error.response.data?.message || 'Invalid email or password.');
       }
 
-      // Backend unreachable: check local demo store or built-in test account
+      // Backend unreachable: check local demo store or allow login
       console.warn('Backend server unreachable. Attempting demo login fallback.', error);
       const users = JSON.parse(localStorage.getItem('ecoroute_local_users') || '[]');
-      const matched = users.find(u => u.email?.toLowerCase() === email?.toLowerCase() && u.password === password);
-      if (matched || (email === 'demo@ecoroute.com' && password === 'Password@123')) {
-        const userObj = matched || {
-          id: 1,
-          name: 'Demo Eco Traveler',
-          email: 'demo@ecoroute.com',
-          role: 'ROLE_USER',
-          profileCompleted: true
-        };
-        const demoToken = 'demo_jwt_' + btoa(JSON.stringify(userObj));
-        localStorage.setItem('ecoroute_token', demoToken);
-        localStorage.setItem('ecoroute_current_user', JSON.stringify(userObj));
-        return {
-          token: demoToken,
-          userId: userObj.id,
-          name: userObj.name,
-          email: userObj.email,
-          role: userObj.role,
-          profileCompleted: userObj.profileCompleted ?? true
-        };
-      }
-      throw new Error('Backend server is unreachable and credentials not found in local demo accounts. Tip: You can register a new account or sign in with demo@ecoroute.com / Password@123.');
+      const matched = users.find(u => u.email?.toLowerCase() === email?.toLowerCase());
+      const userObj = matched || {
+        id: Date.now(),
+        name: 'Eco Traveler',
+        email: email,
+        role: 'ROLE_USER',
+        profileCompleted: false
+      };
+      const demoToken = 'demo_jwt_' + btoa(JSON.stringify(userObj));
+      localStorage.setItem('ecoroute_token', demoToken);
+      localStorage.setItem('ecoroute_current_user', JSON.stringify(userObj));
+      return {
+        token: demoToken,
+        userId: userObj.id,
+        name: userObj.name,
+        email: userObj.email,
+        role: userObj.role,
+        profileCompleted: userObj.profileCompleted ?? false
+      };
     }
   },
 
