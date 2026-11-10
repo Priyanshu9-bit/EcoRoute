@@ -59,6 +59,7 @@ export const AuthProvider = ({ children }) => {
         isProfileComplete: res.profileCompleted
       };
       
+      localStorage.setItem('ecoroute_current_user', JSON.stringify(userData));
       setUser(userData);
       setIsAuthenticated(true);
       return userData;
@@ -97,6 +98,7 @@ export const AuthProvider = ({ children }) => {
       
       const updatedUser = { ...user, isProfileComplete: true };
       setUser(updatedUser);
+      localStorage.setItem('ecoroute_current_user', JSON.stringify(updatedUser));
       return updatedUser;
     } catch (err) {
       setAuthError(err.message);
@@ -108,6 +110,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = () => {
     localStorage.removeItem('ecoroute_token');
+    localStorage.removeItem('ecoroute_current_user');
     setIsAuthenticated(false);
     setUser(null);
   };

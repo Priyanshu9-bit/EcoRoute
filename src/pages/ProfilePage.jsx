@@ -38,10 +38,14 @@ export default function ProfilePage() {
 
   // Sync profile data on mount and whenever user changes or existing profile is fetched
   useEffect(() => {
-    if (user?.fullName && !formData.fullName) {
+    if (user) {
       setFormData((prev) => ({
         ...prev,
-        fullName: user.fullName
+        fullName: user.fullName || '',
+        age: user.age ? String(user.age) : prev.age,
+        medicalCondition: user.medicalCondition || prev.medicalCondition || 'None',
+        vehicleType: user.vehicleType || prev.vehicleType || 'EV',
+        travelMode: user.travelMode || prev.travelMode || 'Solo'
       }));
     }
 
@@ -52,8 +56,9 @@ export default function ProfilePage() {
           const prof = dashboardData.profile;
           const u = dashboardData.user;
           setFormData((prev) => ({
-            fullName: prev.fullName || u?.name || user?.fullName || '',
-            age: prev.age || (prof?.age ? String(prof.age) : ''),
+            ...prev,
+            fullName: user?.fullName || u?.name || prev.fullName || '',
+            age: prof?.age ? String(prof.age) : prev.age,
             medicalCondition: prof?.medicalInformation || prev.medicalCondition || 'None',
             vehicleType: prof?.vehicleType || prev.vehicleType || 'EV',
             travelMode: prev.travelMode || 'Solo'

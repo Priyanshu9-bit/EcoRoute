@@ -22,7 +22,14 @@ import {
 
 export default function RegisterPage() {
   const navigate = useNavigate();
-  const { register, loading } = useAuth();
+  const { register, logout, loading } = useAuth();
+
+  useEffect(() => {
+    // Clean up any stale active session when entering registration
+    if (localStorage.getItem('ecoroute_token')) {
+      logout();
+    }
+  }, []);
 
   const [formData, setFormData] = useState({
     fullName: '',
@@ -116,6 +123,8 @@ export default function RegisterPage() {
 
     try {
       await register(formData.fullName, formData.email, formData.password);
+      localStorage.removeItem('ecoroute_token');
+      localStorage.removeItem('ecoroute_current_user');
       navigate(ROUTES.LOGIN, { state: { registeredEmail: formData.email, verifiedMessage: 'Account created successfully. Please login to continue.' } });
     } catch (err) {
       if (err.message && err.message.toLowerCase().includes('already registered')) {
