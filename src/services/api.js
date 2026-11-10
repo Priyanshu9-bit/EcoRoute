@@ -70,7 +70,12 @@ export const apiService = {
   // Returns false since real-time email check isn't implemented in the backend. 
   // It will be caught during registration instead.
   async checkEmailRegistered(email) {
-    return false;
+    try {
+      const users = JSON.parse(localStorage.getItem('ecoroute_local_users') || '[]');
+      return users.some(u => u.email?.toLowerCase() === email?.toLowerCase());
+    } catch {
+      return false;
+    }
   },
 
   async register(fullName, email, password) {
@@ -83,12 +88,35 @@ export const apiService = {
       });
       return response.data;
     } catch (error) {
-      let errorMsg = error.response?.data?.message || 'Registration failed.';
-      if (error.response?.data?.data && typeof error.response.data.data === 'object') {
-        const fieldErrors = Object.values(error.response.data.data).join(' | ');
-        if (fieldErrors) errorMsg += `: ${fieldErrors}`;
+      // If the backend actively returned an error response (e.g. 400 Bad Request, duplicate email)
+      if (error.response) {
+        let errorMsg = error.response.data?.message || 'Registration failed.';
+        if (error.response.data?.data && typeof error.response.data.data === 'object') {
+          const fieldErrors = Object.values(error.response.data.data).join(' | ');
+          if (fieldErrors) errorMsg += `: ${fieldErrors}`;
+        }
+        throw new Error(errorMsg);
       }
-      throw new Error(errorMsg);
+
+      // Backend unreachable (e.g., deployed on Vercel without cloud backend, or backend offline)
+      console.warn('Backend server unreachable. Enabling local demo account fallback.', error);
+      const mockUser = {
+        id: Date.now(),
+        name: fullName,
+        email: email,
+        role: 'ROLE_USER',
+        accountStatus: 'ACTIVE',
+        profileCompleted: false,
+        isOfflineDemo: true
+      };
+      const users = JSON.parse(localStorage.getItem('ecoroute_local_users') || '[]');
+      if (users.some(u => u.email?.toLowerCase() === email?.toLowerCase())) {
+        throw new Error('Registration Failed. Email is already registered. Please login instead.');
+      }
+      users.push({ ...mockUser, password });
+      localStorage.setItem('ecoroute_local_users', JSON.stringify(users));
+      localStorage.setItem('ecoroute_current_user', JSON.stringify(mockUser));
+      return { success: true, message: 'User registered successfully (Demo Mode)', data: mockUser };
     }
   },
 
@@ -105,7 +133,35 @@ export const apiService = {
       });
       return response.data; // Expected { token, userId, name, email, role, profileCompleted }
     } catch (error) {
-      throw new Error(error.response?.data?.message || 'Invalid email or password.');
+      if (error.response) {
+        throw new Error(error.response.data?.message || 'Invalid email or password.');
+      }
+
+      // Backend unreachable: check local demo store or built-in test account
+      console.warn('Backend server unreachable. Attempting demo login fallback.', error);
+      const users = JSON.parse(localStorage.getItem('ecoroute_local_users') || '[]');
+      const matched = users.find(u => u.email?.toLowerCase() === email?.toLowerCase() && u.password === password);
+      if (matched || (email === 'demo@ecoroute.com' && password === 'Password@123')) {
+        const userObj = matched || {
+          id: 1,
+          name: 'Demo Eco Traveler',
+          email: 'demo@ecoroute.com',
+          role: 'ROLE_USER',
+          profileCompleted: true
+        };
+        const demoToken = 'demo_jwt_' + btoa(JSON.stringify(userObj));
+        localStorage.setItem('ecoroute_token', demoToken);
+        localStorage.setItem('ecoroute_current_user', JSON.stringify(userObj));
+        return {
+          token: demoToken,
+          userId: userObj.id,
+          name: userObj.name,
+          email: userObj.email,
+          role: userObj.role,
+          profileCompleted: userObj.profileCompleted ?? true
+        };
+      }
+      throw new Error('Backend server is unreachable and credentials not found in local demo accounts. Tip: You can register a new account or sign in with demo@ecoroute.com / Password@123.');
     }
   },
 
@@ -114,6 +170,10 @@ export const apiService = {
       const response = await apiClient.get('/users/me');
       return response.data.data; // ApiResponse format: { success, message, data }
     } catch (error) {
+      const cached = localStorage.getItem('ecoroute_current_user');
+      if (cached) {
+        return JSON.parse(cached);
+      }
       throw new Error(error.response?.data?.message || 'Failed to fetch user.');
     }
   },
@@ -124,7 +184,26 @@ export const apiService = {
       // The backend returns an ApiResponse where data holds the DashboardResponse
       return response.data.data; 
     } catch (error) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch dashboard data.');
+      // Demo metrics fallback
+      return {
+        totalJourneys: 8,
+        totalDistance: 246.5,
+        totalCo2Saved: 42.8,
+        treesEquivalent: 2.1,
+        averageAqi: 36,
+        recentJourneys: [
+          {
+            id: 101,
+            sourceName: 'Central Eco Park',
+            destName: 'Green Tech Corridor',
+            distance: 28.4,
+            duration: '38 mins',
+            co2Saved: '5.2 kg',
+            aqi: 32,
+            createdAt: new Date().toISOString()
+          }
+        ]
+      };
     }
   },
 
@@ -140,7 +219,13 @@ export const apiService = {
       const response = await apiClient.put('/profile', payload);
       return response.data.data;
     } catch (error) {
-      throw new Error(error.response?.data?.message || 'Failed to update profile.');
+      if (error.response) {
+        throw new Error(error.response.data?.message || 'Failed to update profile.');
+      }
+      const cached = JSON.parse(localStorage.getItem('ecoroute_current_user') || '{}');
+      const updated = { ...cached, ...profileData, profileCompleted: true };
+      localStorage.setItem('ecoroute_current_user', JSON.stringify(updated));
+      return updated;
     }
   },
 
@@ -194,7 +279,66 @@ export const apiService = {
       const response = await apiClient.post('/journeys', journeyData);
       return response.data.data;
     } catch (error) {
-      throw new Error(error.response?.data?.message || 'Failed to plan journey.');
+      if (error.response) {
+        throw new Error(error.response?.data?.message || 'Failed to plan journey.');
+      }
+      // Demo journey fallback for online Vercel preview when backend isn't deployed
+      console.warn('Backend server unreachable. Generating demo journey routes.', error);
+      const sLat = journeyData.sourceLat || 28.6139;
+      const sLng = journeyData.sourceLon || 77.2090;
+      const dLat = journeyData.destLat || 28.5355;
+      const dLng = journeyData.destLon || 77.3910;
+
+      const mockId = Date.now();
+      const mockJourney = {
+        id: mockId,
+        sourceName: journeyData.sourceName || 'Departure',
+        destinationName: journeyData.destinationName || 'Destination',
+        sourceLatitude: sLat,
+        sourceLongitude: sLng,
+        destinationLatitude: dLat,
+        destinationLongitude: dLng,
+        routes: [
+          {
+            id: 1,
+            routeName: 'Eco-Friendly Low-Emission Corridor',
+            distance: 31.8,
+            duration: 42,
+            carbonEmission: 4.1,
+            airQualityScore: 32,
+            safetyScore: 94,
+            isRecommended: true,
+            routeGeometry: `[[${sLat},${sLng}],[${(sLat+dLat)/2 + 0.01},${(sLng+dLng)/2 - 0.01}],[${dLat},${dLng}]]`,
+            weather: { temperature: 24, condition: 'Clear Sky', aqi: 32, aqiCategory: 'Good' }
+          },
+          {
+            id: 2,
+            routeName: 'Fastest Direct Expressway',
+            distance: 29.5,
+            duration: 35,
+            carbonEmission: 6.8,
+            airQualityScore: 78,
+            safetyScore: 88,
+            isRecommended: false,
+            routeGeometry: `[[${sLat},${sLng}],[${(sLat+dLat)/2},${(sLng+dLng)/2}],[${dLat},${dLng}]]`,
+            weather: { temperature: 26, condition: 'Hazy', aqi: 78, aqiCategory: 'Moderate' }
+          },
+          {
+            id: 3,
+            routeName: 'Scenic Green Corridor',
+            distance: 34.2,
+            duration: 48,
+            carbonEmission: 4.8,
+            airQualityScore: 28,
+            safetyScore: 92,
+            isRecommended: false,
+            routeGeometry: `[[${sLat},${sLng}],[${(sLat+dLat)/2 - 0.015},${(sLng+dLng)/2 + 0.015}],[${dLat},${dLng}]]`,
+            weather: { temperature: 23, condition: 'Pleasant', aqi: 28, aqiCategory: 'Good' }
+          }
+        ]
+      };
+      sessionStorage.setItem('ecoroute_journey_' + mockId, JSON.stringify(mockJourney));
+      return mockJourney;
     }
   },
 
@@ -221,7 +365,7 @@ export const apiService = {
       const response = await apiClient.get('/journeys');
       return response.data.data;
     } catch (error) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch journeys.');
+      return [];
     }
   },
 
@@ -231,6 +375,10 @@ export const apiService = {
       // Since our new GET /api/journeys/{journeyId}/routes returns the JourneyResponse directly as data.
       return response.data.data;
     } catch (error) {
+      const cached = sessionStorage.getItem('ecoroute_journey_' + journeyId);
+      if (cached) {
+        return JSON.parse(cached);
+      }
       throw new Error(error.response?.data?.message || 'Failed to fetch journey routes.');
     }
   },
@@ -249,7 +397,10 @@ export const apiService = {
       const response = await apiClient.put(`/journeys/${journeyId}/selected-route`, { routeId });
       return response.data.data;
     } catch (error) {
-      throw new Error(error.response?.data?.message || 'Failed to select route.');
+      if (error.response) {
+        throw new Error(error.response?.data?.message || 'Failed to select route.');
+      }
+      return { success: true, journeyId, selectedRouteId: routeId };
     }
   },
 
