@@ -1,5 +1,5 @@
 // API Base URLs for Spring Boot integration
-export const API_BASE_URL = 'http://localhost:8080/api/v1';
+export const API_BASE_URL = import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/v1` : 'http://localhost:8080/api/v1';
 
 // Application Routes
 export const ROUTES = {

@@ -1,8 +1,10 @@
 import axios from 'axios';
 
 // Axios instance configured for the Spring Boot backend
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
+
 const apiClient = axios.create({
-  baseURL: 'http://localhost:8080/api',
+  baseURL: API_BASE,
   headers: {
     'Content-Type': 'application/json',
   },
