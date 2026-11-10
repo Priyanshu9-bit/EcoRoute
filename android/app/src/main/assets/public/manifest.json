@@ -1,0 +1,27 @@
+{
+  "short_name": "EcoRoute",
+  "name": "EcoRoute — Smart Environmental Navigation",
+  "description": "Smart Environmental Route Recommendation System. Real-time AQI heatmap, weather hazards, voice GPS guidance, and roadside emergency assistance.",
+  "icons": [
+    {
+      "src": "/icon-192.svg",
+      "type": "image/svg+xml",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.svg",
+      "type": "image/svg+xml",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#0f172a",
+  "theme_color": "#059669",
+  "display": "standalone",
+  "orientation": "portrait",
+  "scope": "/",
+  "categories": ["navigation", "travel", "lifestyle", "utilities"]
+}
+
