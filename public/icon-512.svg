@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bgGrad512" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#059669" />
+      <stop offset="50%" stop-color="#10b981" />
+      <stop offset="100%" stop-color="#047857" />
+    </linearGradient>
+    <filter id="shadow512" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="10" stdDeviation="16" flood-color="#000000" flood-opacity="0.3" />
+    </filter>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#bgGrad512)" />
+  <!-- Road track -->
+  <path d="M 120 395 C 175 295, 215 268, 295 235 C 362 208, 380 144, 396 112" fill="none" stroke="#ffffff" stroke-width="32" stroke-linecap="round" opacity="0.35" />
+  <!-- Eco Route Dash -->
+  <path d="M 120 395 C 175 295, 215 268, 295 235 C 362 208, 380 144, 396 112" fill="none" stroke="#6ee7b7" stroke-width="16" stroke-dasharray="26 20" stroke-linecap="round" />
+  <!-- Leaf icon -->
+  <g filter="url(#shadow512)" transform="translate(180, 160)">
+    <path d="M 80 0 C 32 16, 0 64, 0 120 C 0 144, 16 160, 40 160 C 96 160, 144 128, 160 80 C 160 32, 128 0, 80 0 Z" fill="#ffffff" />
+    <path d="M 16 144 C 54 106, 90 70, 128 32" fill="none" stroke="#059669" stroke-width="10" stroke-linecap="round" />
+    <circle cx="40" cy="133" r="14" fill="#10b981" />
+  </g>
+  <!-- Navigation destination pin -->
+  <circle cx="396" cy="112" r="24" fill="#fbbf24" stroke="#ffffff" stroke-width="8" />
+</svg>

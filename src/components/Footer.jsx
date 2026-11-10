@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FaLeaf, FaEnvelope, FaPhoneAlt, FaMapMarkerAlt, FaGithub, FaLinkedin } from 'react-icons/fa';
+import { FaLeaf, FaEnvelope, FaPhoneAlt, FaMapMarkerAlt, FaGithub, FaLinkedin, FaMobileAlt } from 'react-icons/fa';
 import { ROUTES } from '../utils/constants';
+import InstallAppModal from './InstallAppModal';
 
 export default function Footer() {
+  const [showInstallModal, setShowInstallModal] = useState(false);
   return (
     <footer className="bg-white border-t border-slate-200 mt-auto">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -50,6 +52,15 @@ export default function Footer() {
             <ul className="space-y-2.5 text-xs text-slate-600">
               <li>
                 <Link to={ROUTES.HOME} className="hover:text-green-600 transition-colors">About EcoRoute</Link>
+              </li>
+              <li>
+                <button
+                  onClick={() => setShowInstallModal(true)}
+                  className="hover:text-green-600 transition-colors flex items-center gap-1.5 cursor-pointer text-left font-semibold text-emerald-700"
+                >
+                  <FaMobileAlt className="text-emerald-500" />
+                  <span>Download Mobile App (APK / PWA)</span>
+                </button>
               </li>
               <li>
                 <a href="#features-section" className="hover:text-green-600 transition-colors">Features</a>
@@ -105,6 +116,11 @@ export default function Footer() {
           </p>
         </div>
       </div>
+
+      <InstallAppModal 
+        isOpen={showInstallModal} 
+        onClose={() => setShowInstallModal(false)} 
+      />
     </footer>
   );
 }

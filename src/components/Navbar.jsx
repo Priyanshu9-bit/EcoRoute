@@ -13,13 +13,16 @@ import {
   FaSignInAlt,
   FaUserPlus,
   FaBars,
-  FaTimes
+  FaTimes,
+  FaMobileAlt
 } from 'react-icons/fa';
+import InstallAppModal from './InstallAppModal';
 
 export default function Navbar() {
   const { isAuthenticated, user, logout } = useAuth();
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [showInstallModal, setShowInstallModal] = useState(false);
 
   const handleLogout = () => {
     logout();
@@ -91,6 +94,17 @@ export default function Navbar() {
 
           {/* Right Action / Auth Buttons */}
           <div className="hidden md:flex items-center gap-3">
+            <button
+              onClick={() => setShowInstallModal(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-300 hover:bg-emerald-100/90 hover:scale-[1.02] transition-all duration-200 cursor-pointer shadow-xs"
+              title="Download EcoRoute Mobile App (APK & PWA)"
+            >
+              <FaMobileAlt className="text-emerald-600 text-sm" />
+              <span>Get App</span>
+              <span className="px-1.5 py-0.2 rounded-full text-[9px] font-extrabold bg-emerald-600 text-white tracking-wide">
+                APK
+              </span>
+            </button>
             {isAuthenticated ? (
               <div className="flex items-center gap-3 pl-3 border-l border-slate-200">
                 <div className="text-right hidden lg:block">
@@ -208,10 +222,31 @@ export default function Navbar() {
               >
                 Get Started
               </Link>
+              <button
+                onClick={() => {
+                  setShowInstallModal(true);
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500/10 to-teal-500/10 text-emerald-800 border border-emerald-300 text-xs font-bold"
+              >
+                <div className="flex items-center gap-2">
+                  <FaMobileAlt className="text-emerald-600 text-sm" />
+                  <span>Download Mobile App (APK / PWA)</span>
+                </div>
+                <span className="px-2 py-0.5 rounded-full text-[9px] font-black bg-emerald-600 text-white">
+                  NEW
+                </span>
+              </button>
             </div>
           )}
         </div>
       )}
+
+      {/* Mobile App Install Modal */}
+      <InstallAppModal 
+        isOpen={showInstallModal} 
+        onClose={() => setShowInstallModal(false)} 
+      />
     </header>
   );
 }

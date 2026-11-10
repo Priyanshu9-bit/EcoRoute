@@ -32,12 +32,19 @@ import {
   FaArrowRight,
   FaHospital,
   FaUtensils,
-  FaExclamationTriangle
+  FaExclamationTriangle,
+  FaMobileAlt,
+  FaDownload,
+  FaQrcode,
+  FaVolumeUp,
+  FaAndroid
 } from 'react-icons/fa';
+import InstallAppModal from '../components/InstallAppModal';
 
 export default function HomePage() {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
+  const [showInstallModal, setShowInstallModal] = useState(false);
 
   // Interactive Route Simulator state
   const [selectedRouteType, setSelectedRouteType] = useState('eco'); // 'eco' | 'highway' | 'scenic'
@@ -181,6 +188,16 @@ export default function HomePage() {
                   className="shadow-lg shadow-emerald-600/30 text-sm font-bold"
                 >
                   {isAuthenticated ? 'Plan Your Route Now' : 'Get Started Free'}
+                </Button>
+
+                <Button
+                  variant="outline"
+                  size="md"
+                  icon={FaMobileAlt}
+                  onClick={() => setShowInstallModal(true)}
+                  className="border-emerald-300 bg-emerald-50/80 text-emerald-800 hover:bg-emerald-100 font-bold"
+                >
+                  Get App (APK & PWA)
                 </Button>
 
                 {isAuthenticated ? (
@@ -643,6 +660,185 @@ export default function HomePage() {
           </div>
         </section>
 
+        {/* 6.5. MOBILE APP DOWNLOAD SHOWCASE */}
+        <section className="relative rounded-3xl bg-gradient-to-br from-slate-950 via-slate-900 to-emerald-950 border border-emerald-500/20 p-8 sm:p-12 overflow-hidden shadow-2xl text-white">
+          <div className="absolute -top-32 -right-32 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute -bottom-32 -left-32 w-80 h-80 bg-teal-500/10 rounded-full blur-3xl pointer-events-none" />
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
+            
+            {/* Left Content */}
+            <div className="lg:col-span-7 space-y-6">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-xs font-bold tracking-wide uppercase">
+                <FaMobileAlt />
+                <span>EcoRoute for Android & Mobile</span>
+              </div>
+
+              <h2 className="text-3xl sm:text-4xl font-black tracking-tight text-white leading-tight font-heading">
+                Take Smarter, Cleaner Navigation <br className="hidden sm:block" />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-300">
+                  Directly Into Your Vehicle
+                </span>
+              </h2>
+
+              <p className="text-slate-300 text-sm sm:text-base leading-relaxed">
+                Whether mounted on your car dashboard or bike handle, the EcoRoute mobile app gives you real-time voice guidance, continuous AQI smog warning radar, and 1-tap SOS emergency dispatch.
+              </p>
+
+              {/* Mobile Features List */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1 text-xs">
+                <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10 space-y-1">
+                  <div className="text-emerald-400 text-base font-bold flex items-center gap-1.5">
+                    <FaVolumeUp />
+                    <span>Voice Cockpit</span>
+                  </div>
+                  <p className="text-slate-400 text-[11px] leading-snug">
+                    Hands-free voice maneuvers and milestone voice prompts.
+                  </p>
+                </div>
+
+                <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10 space-y-1">
+                  <div className="text-teal-400 text-base font-bold flex items-center gap-1.5">
+                    <FaLeaf />
+                    <span>Live AQI Heatmap</span>
+                  </div>
+                  <p className="text-slate-400 text-[11px] leading-snug">
+                    Color-coded road segments alert you before entering smog zones.
+                  </p>
+                </div>
+
+                <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10 space-y-1">
+                  <div className="text-red-400 text-base font-bold flex items-center gap-1.5">
+                    <FaShieldAlt />
+                    <span>Instant SOS</span>
+                  </div>
+                  <p className="text-slate-400 text-[11px] leading-snug">
+                    1-click WhatsApp location sharing and speed dial for 112 & 108.
+                  </p>
+                </div>
+              </div>
+
+              {/* Action Buttons & QR Code */}
+              <div className="flex flex-wrap items-center gap-4 pt-2">
+                <button
+                  onClick={() => setShowInstallModal(true)}
+                  className="px-6 py-3.5 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-extrabold text-sm shadow-xl shadow-emerald-500/25 flex items-center gap-2.5 transition-all transform hover:-translate-y-0.5 cursor-pointer"
+                >
+                  <FaAndroid className="text-lg" />
+                  <span>Download Android App (APK)</span>
+                </button>
+
+                <button
+                  onClick={() => setShowInstallModal(true)}
+                  className="px-5 py-3.5 rounded-2xl bg-white/10 hover:bg-white/15 text-slate-200 border border-white/20 font-bold text-sm flex items-center gap-2 transition-all cursor-pointer"
+                >
+                  <FaMobileAlt className="text-emerald-400" />
+                  <span>Install Web App (PWA)</span>
+                </button>
+
+                <button
+                  onClick={() => setShowInstallModal(true)}
+                  className="px-4 py-3.5 rounded-2xl bg-slate-800/80 hover:bg-slate-800 text-slate-300 border border-slate-700 font-bold text-xs flex items-center gap-2 transition-all cursor-pointer"
+                  title="Scan with phone"
+                >
+                  <FaQrcode className="text-emerald-400 text-base" />
+                  <span>Scan QR Code</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Right Phone Mockup Preview */}
+            <div className="lg:col-span-5 flex justify-center">
+              <div className="relative w-64 sm:w-72 rounded-[40px] bg-slate-950 p-3.5 shadow-2xl border-4 border-slate-800 ring-1 ring-emerald-500/20">
+                {/* Dynamic Island / Notch */}
+                <div className="absolute top-6 left-1/2 -translate-x-1/2 w-24 h-4 bg-slate-900 rounded-full z-20" />
+                
+                {/* Inner Screen */}
+                <div className="rounded-[30px] overflow-hidden bg-slate-900 border border-slate-800 flex flex-col h-[460px]">
+                  
+                  {/* Cockpit Header */}
+                  <div className="p-3.5 pt-7 bg-gradient-to-b from-slate-950 to-slate-900 border-b border-slate-800 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xs">
+                        🌱
+                      </div>
+                      <div>
+                        <div className="text-[11px] font-bold text-white">EcoRoute Navigation</div>
+                        <div className="text-[9px] text-emerald-400">● GPS Signal Locked</div>
+                      </div>
+                    </div>
+                    <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                      AQI 42 (Clean)
+                    </span>
+                  </div>
+
+                  {/* Navigation Cockpit HUD */}
+                  <div className="p-3 bg-emerald-950/40 border-b border-emerald-500/20 flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-emerald-500 text-white flex items-center justify-center text-lg font-bold shadow-md shadow-emerald-500/30 shrink-0">
+                      ↰
+                    </div>
+                    <div>
+                      <div className="text-xs font-black text-white">In 250m, Turn Left</div>
+                      <div className="text-[10px] text-emerald-300">onto Green Corridor Express</div>
+                    </div>
+                  </div>
+
+                  {/* Mock Map View */}
+                  <div className="flex-1 bg-slate-950 relative overflow-hidden flex items-center justify-center">
+                    <svg className="w-full h-full opacity-60" viewBox="0 0 200 240">
+                      {/* Grid Lines */}
+                      <line x1="0" y1="60" x2="200" y2="60" stroke="#1e293b" strokeWidth="1" />
+                      <line x1="0" y1="120" x2="200" y2="120" stroke="#1e293b" strokeWidth="1" />
+                      <line x1="0" y1="180" x2="200" y2="180" stroke="#1e293b" strokeWidth="1" />
+                      <line x1="50" y1="0" x2="50" y2="240" stroke="#1e293b" strokeWidth="1" />
+                      <line x1="150" y1="0" x2="150" y2="240" stroke="#1e293b" strokeWidth="1" />
+                      
+                      {/* Route Path */}
+                      <path d="M 100 220 Q 60 160 100 110 T 130 30" fill="none" stroke="#10b981" strokeWidth="6" strokeLinecap="round" />
+                      <path d="M 100 220 Q 60 160 100 110 T 130 30" fill="none" stroke="#34d399" strokeWidth="2" strokeDasharray="6 4" />
+                      
+                      {/* Current Vehicle Beacon */}
+                      <circle cx="100" cy="180" r="10" fill="#10b981" opacity="0.3" className="animate-ping" />
+                      <circle cx="100" cy="180" r="6" fill="#10b981" stroke="#ffffff" strokeWidth="2" />
+
+                      {/* Destination */}
+                      <circle cx="130" cy="30" r="7" fill="#f59e0b" stroke="#ffffff" strokeWidth="2" />
+                    </svg>
+
+                    {/* Speed HUD Overlay */}
+                    <div className="absolute bottom-2 left-2 px-2.5 py-1.5 rounded-xl bg-slate-900/90 border border-slate-700 text-center">
+                      <div className="text-base font-black text-white leading-none">48</div>
+                      <div className="text-[8px] uppercase tracking-wider text-slate-400">km/h</div>
+                    </div>
+
+                    {/* Voice Active Badge */}
+                    <div className="absolute top-2 right-2 px-2 py-1 rounded-full bg-slate-900/90 border border-slate-700 flex items-center gap-1 text-[9px] text-emerald-400 font-bold">
+                      <FaVolumeUp className="animate-pulse" />
+                      <span>Voice ON</span>
+                    </div>
+                  </div>
+
+                  {/* Cockpit Footer */}
+                  <div className="p-3 bg-slate-950 border-t border-slate-800 flex items-center justify-between text-[10px]">
+                    <div>
+                      <div className="font-extrabold text-white text-xs">14 min</div>
+                      <div className="text-slate-400">6.2 km remaining</div>
+                    </div>
+                    <button
+                      onClick={() => setShowInstallModal(true)}
+                      className="px-3 py-1.5 rounded-lg bg-emerald-500 text-white font-bold text-[10px] shadow-sm hover:bg-emerald-600"
+                    >
+                      Install App
+                    </button>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
         {/* 7. CALL-TO-ACTION */}
         <section className="bg-white rounded-3xl border border-slate-200/90 p-8 sm:p-14 text-center space-y-6 shadow-sm relative overflow-hidden">
           <div className="absolute -top-20 -left-20 w-64 h-64 bg-emerald-100/50 rounded-full blur-2xl pointer-events-none" />
@@ -686,6 +882,11 @@ export default function HomePage() {
         </section>
 
       </div>
+
+      <InstallAppModal 
+        isOpen={showInstallModal} 
+        onClose={() => setShowInstallModal(false)} 
+      />
     </MainLayout>
   );
 }
