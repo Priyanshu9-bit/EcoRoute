@@ -150,6 +150,24 @@ export default function LoginPage() {
           </Button>
         </div>
 
+        {/* Quick Demo Access Button */}
+        <div className="p-3 bg-emerald-50/80 rounded-xl border border-emerald-200/80 flex items-center justify-between text-xs">
+          <div>
+            <span className="font-bold text-emerald-950 block">Instant Demo Access</span>
+            <span className="text-emerald-700 text-[11px]">1-click auto-fill credentials</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              setEmail('demo@ecoroute.com');
+              setPassword('123456');
+            }}
+            className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg transition-colors cursor-pointer text-xs shadow-xs"
+          >
+            Auto-Fill Demo
+          </button>
+        </div>
+
         {/* Create Account Link */}
         <div className="text-center pt-4 border-t border-slate-100">
           <p className="text-xs text-slate-500">

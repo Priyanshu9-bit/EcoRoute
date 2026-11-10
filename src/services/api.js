@@ -143,9 +143,13 @@ export const apiService = {
       console.warn('Backend server unreachable. Attempting demo login fallback.', error);
       const users = JSON.parse(localStorage.getItem('ecoroute_local_users') || '[]');
       const matched = users.find(u => u.email?.toLowerCase() === email?.toLowerCase());
+      const derivedName = email.includes('@')
+        ? email.split('@')[0].replace(/[._]/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase())
+        : 'Eco Traveler';
+
       const userObj = matched || {
         id: Date.now(),
-        name: 'Eco Traveler',
+        name: derivedName,
         email: email,
         role: 'ROLE_USER',
         profileCompleted: false
